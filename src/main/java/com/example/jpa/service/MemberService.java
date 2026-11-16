@@ -29,17 +29,14 @@ public class MemberService {
     /** 회원 조회 — 없으면 예외 */
     @Transactional(readOnly = true)   // 조회만 하는 트랜잭션
     public Member findMember(Long id) {
-        Member member = memberRepository.findById(id);
-        if (member == null) {
-            throw new IllegalArgumentException("회원이 없습니다. id=" + id);
-        }
-        return member;
+        return memberRepository.findById(id)   // Optional<Member>
+                .orElseThrow(() -> new IllegalArgumentException("회원이 없습니다. id=" + id));
     }
 
     /** 전체 회원 */
     @Transactional(readOnly = true)
     public List<Member> findMembers() {
-        return memberRepository.findAll();
+        return memberRepository.findAllByOrderByIdAsc();
     }
 
     /** 등급 변경 — 값만 바꾸고 저장 메서드는 호출하지 않는다 (변경 감지) */

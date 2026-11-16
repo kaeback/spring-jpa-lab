@@ -1,49 +1,30 @@
 package com.example.jpa.repository;
 
 import com.example.jpa.domain.Order;
-import jakarta.persistence.EntityManager;
-import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Repository;
+import com.example.jpa.domain.OrderStatus;
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 
 import java.util.List;
 
 /**
  * 주문 리포지토리
  */
-@Repository
-@RequiredArgsConstructor
-public class OrderRepository {
+public interface OrderRepository extends JpaRepository<Order, Long> {
 
-    private final EntityManager em;
+    // 연관된 엔티티의 필드는 이름을 이어 붙인다: member.id → MemberId
+    List<Order> findByMemberIdOrderByIdAsc(Long memberId);
 
-    public void save(Order order) {
-        em.persist(order);
-    }
+    // @Query — 메서드 이름으로 표현하기 어려운 JPQL은 직접 쓴다 (fetch join)
+    @Query("select o from Order o"
+            + " join fetch o.member"
+            + " join fetch o.orderItems oi"
+            + " join fetch oi.product"
+            + " order by o.id")
+    List<Order> findAllWithItems();
 
-    public Order findById(Long id) {
-        return em.find(Order.class, id);
-    }
-
-    /** 전체 주문 — 주문만 조회한다. 회원·주문 상품은 사용할 때 조회한다 (N+1 문제) */
-    public List<Order> findAll() {
-        return em.createQuery("select o from Order o order by o.id", Order.class)
-                .getResultList();
-    }
-
-    /** 전체 주문 — fetch join으로 회원, 주문 상품, 상품까지 SQL 한 번에 조회한다 */
-    public List<Order> findAllWithItems() {
-        return em.createQuery(
-                        "select o from Order o"
-                                + " join fetch o.member"
-                                + " join fetch o.orderItems oi"
-                                + " join fetch oi.product"
-                                + " order by o.id", Order.class)
-                .getResultList();
-    }
-
-    /** 주문 수 */
-    public long count() {
-        return em.createQuery("select count(o) from Order o", Long.class)
-                .getSingleResult();
-    }
+    // :status 자리에 @Param("status")의 값이 들어간다
+    @Query("select o from Order o join fetch o.member where o.status = :status order by o.id")
+    List<Order> findByStatusWithMember(@Param("status") OrderStatus status);
 }

@@ -1,39 +1,22 @@
 package com.example.jpa.repository;
 
+import com.example.jpa.domain.Grade;
 import com.example.jpa.domain.Member;
-import jakarta.persistence.EntityManager;
-import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Repository;
+import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.List;
+import java.util.Optional;
 
 /**
- * 회원 리포지토리 — EntityManager로 Member를 저장하고 조회한다
+ * 회원 리포지토리 — 인터페이스만 선언하면 Spring Data JPA가 구현 객체를 만든다
+ * save, findById, findAll, count, delete 등은 JpaRepository에 이미 있다.
  */
-@Repository
-@RequiredArgsConstructor
-public class MemberRepository {
+public interface MemberRepository extends JpaRepository<Member, Long> {
 
-    private final EntityManager em;
+    // 쿼리 메서드 — 메서드 이름을 보고 JPQL을 만든다
+    Optional<Member> findByEmail(String email);          // where email = ?
 
-    /** 저장 — 영속성 컨텍스트에 넣는다 (persist) */
-    public void save(Member member) {
-        em.persist(member);
-    }
+    List<Member> findByGradeOrderByIdAsc(Grade grade);   // where grade = ? order by id
 
-    /** id로 조회 — 없으면 null */
-    public Member findById(Long id) {
-        return em.find(Member.class, id);
-    }
-
-    /** 전체 조회 — JPQL: 테이블이 아니라 엔티티(Member)를 대상으로 쓴다 */
-    public List<Member> findAll() {
-        return em.createQuery("select m from Member m order by m.id", Member.class)
-                .getResultList();
-    }
-
-    /** 삭제 — 영속 상태의 엔티티를 삭제 상태로 만든다 (remove) */
-    public void delete(Member member) {
-        em.remove(member);
-    }
+    List<Member> findAllByOrderByIdAsc();                // order by id
 }

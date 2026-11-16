@@ -28,11 +28,8 @@ public class ProductService {
     /** 상품 조회 — 없으면 예외 */
     @Transactional(readOnly = true)
     public Product findProduct(Long id) {
-        Product product = productRepository.findById(id);
-        if (product == null) {
-            throw new IllegalArgumentException("상품이 없습니다. id=" + id);
-        }
-        return product;
+        return productRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("상품이 없습니다. id=" + id));
     }
 
     /** 상품 수 */
@@ -44,13 +41,13 @@ public class ProductService {
     /** 이름으로 검색 */
     @Transactional(readOnly = true)
     public List<Product> searchByName(String keyword) {
-        return productRepository.findByNameContaining(keyword);
+        return productRepository.findByNameContainingOrderByIdAsc(keyword);
     }
 
     /** 가격 범위로 검색 */
     @Transactional(readOnly = true)
     public List<Product> searchByPrice(int min, int max) {
-        return productRepository.findByPriceBetween(min, max);
+        return productRepository.findByPriceBetweenOrderByPriceAsc(min, max);
     }
 
     /** 가격 변경 (변경 감지) */

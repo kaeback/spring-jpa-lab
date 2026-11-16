@@ -38,17 +38,14 @@ public class OrderService {
     /** 주문 조회 — 없으면 예외 */
     @Transactional(readOnly = true)
     public Order findOrder(Long orderId) {
-        Order order = orderRepository.findById(orderId);
-        if (order == null) {
-            throw new IllegalArgumentException("주문이 없습니다. id=" + orderId);
-        }
-        return order;
+        return orderRepository.findById(orderId)
+                .orElseThrow(() -> new IllegalArgumentException("주문이 없습니다. id=" + orderId));
     }
 
-    /** 전체 주문 (주문만 조회) */
+    /** 회원의 주문 목록 */
     @Transactional(readOnly = true)
-    public List<Order> findOrders() {
-        return orderRepository.findAll();
+    public List<Order> findOrdersByMember(Long memberId) {
+        return orderRepository.findByMemberIdOrderByIdAsc(memberId);
     }
 
     /** 전체 주문 (fetch join으로 회원·주문 상품·상품까지) */
