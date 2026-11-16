@@ -4,6 +4,8 @@ import com.example.jpa.domain.Member;
 import com.example.jpa.domain.Order;
 import com.example.jpa.domain.OrderItem;
 import com.example.jpa.domain.Product;
+import com.example.jpa.dto.OrderDto;
+import com.example.jpa.dto.OrderSummary;
 import com.example.jpa.repository.OrderRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -40,6 +42,18 @@ public class OrderService {
     public Order findOrder(Long orderId) {
         return orderRepository.findById(orderId)
                 .orElseThrow(() -> new IllegalArgumentException("주문이 없습니다. id=" + orderId));
+    }
+
+    /** 주문 조회 — 트랜잭션 안에서 DTO로 바꿔 돌려준다 */
+    @Transactional(readOnly = true)
+    public OrderDto findOrderDto(Long orderId) {
+        return OrderDto.from(findOrder(orderId));
+    }
+
+    /** 주문 요약 목록 — JPQL로 DTO를 바로 조회한다 */
+    @Transactional(readOnly = true)
+    public List<OrderSummary> findOrderSummaries() {
+        return orderRepository.findOrderSummaries();
     }
 
     /** 회원의 주문 목록 */

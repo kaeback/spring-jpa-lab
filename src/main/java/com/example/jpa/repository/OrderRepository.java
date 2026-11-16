@@ -2,6 +2,7 @@ package com.example.jpa.repository;
 
 import com.example.jpa.domain.Order;
 import com.example.jpa.domain.OrderStatus;
+import com.example.jpa.dto.OrderSummary;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -23,6 +24,13 @@ public interface OrderRepository extends JpaRepository<Order, Long> {
             + " join fetch oi.product"
             + " order by o.id")
     List<Order> findAllWithItems();
+
+    // DTO로 바로 조회 — new 뒤에 패키지를 포함한 클래스 이름과 생성자 인자 순서대로 쓴다
+    @Query("select new com.example.jpa.dto.OrderSummary(o.id, m.name, o.status, sum(oi.orderPrice * oi.quantity))"
+            + " from Order o join o.member m join o.orderItems oi"
+            + " group by o.id, m.name, o.status"
+            + " order by o.id")
+    List<OrderSummary> findOrderSummaries();
 
     // :status 자리에 @Param("status")의 값이 들어간다
     @Query("select o from Order o join fetch o.member where o.status = :status order by o.id")
