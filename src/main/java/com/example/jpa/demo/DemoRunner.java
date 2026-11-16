@@ -12,14 +12,13 @@ import org.springframework.stereotype.Component;
 @RequiredArgsConstructor
 public class DemoRunner implements CommandLineRunner {
 
-    private final Step3Demo step3;
+    private final Step4Demo step4;
 
     @Override
     public void run(String... args) {
-        step3.prepare();
-        step3.findAll();
-        step3.searchByName();
-        step3.searchByPrice();
-        step3.autoFlush();
+        step4.prepare();
+        Long orderId = step4.order();
+        step4.lazyLoading(orderId);
+        step4.outOfStock();
     }
 }

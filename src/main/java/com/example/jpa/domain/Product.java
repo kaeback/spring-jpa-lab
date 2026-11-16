@@ -44,6 +44,14 @@ public class Product {
         this.price = price;
     }
 
+    /** 재고를 줄인다 — 재고보다 많이 주문하면 예외 */
+    public void removeStock(int quantity) {
+        if (stockQuantity < quantity) {
+            throw new IllegalStateException(name + " 재고가 부족합니다. (재고 " + stockQuantity + "개, 주문 " + quantity + "개)");
+        }
+        this.stockQuantity -= quantity;
+    }
+
     @Override
     public String toString() {
         return "Product{id=" + id + ", name=" + name + ", price=" + price + ", stock=" + stockQuantity + "}";
