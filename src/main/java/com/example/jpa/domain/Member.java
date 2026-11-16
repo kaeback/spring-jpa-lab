@@ -47,6 +47,11 @@ public class Member {
         this.createdAt = LocalDateTime.now();
     }
 
+    /** 등급을 바꾼다 */
+    public void changeGrade(Grade grade) {
+        this.grade = grade;
+    }
+
     @Override
     public String toString() {
         return "Member{id=" + id + ", name=" + name + ", email=" + email + ", grade=" + grade + "}";

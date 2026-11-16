@@ -23,4 +23,9 @@ public class MemberRepository {
     public Member findById(Long id) {
         return em.find(Member.class, id);
     }
+
+    /** 삭제 — 영속 상태의 엔티티를 삭제 상태로 만든다 (remove) */
+    public void delete(Member member) {
+        em.remove(member);
+    }
 }
