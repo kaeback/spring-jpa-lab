@@ -12,19 +12,12 @@ import org.springframework.stereotype.Component;
 @RequiredArgsConstructor
 public class DemoRunner implements CommandLineRunner {
 
-    private final Step5Demo step5;
+    private final Step6Demo step6;
 
     @Override
     public void run(String... args) {
-        step5.prepare();
-        try {
-            step5.inverseSideOnly();
-        } catch (RuntimeException e) {
-            System.out.println("예외: " + e.getMessage());
-        }
-        Long orderId = step5.cascade();
-        step5.readOrder(orderId);
-        step5.cancel(orderId);
-        step5.orphanRemoval();
+        step6.prepare();
+        step6.nPlusOne();
+        step6.fetchJoin();
     }
 }

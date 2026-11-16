@@ -45,6 +45,18 @@ public class OrderService {
         return order;
     }
 
+    /** 전체 주문 (주문만 조회) */
+    @Transactional(readOnly = true)
+    public List<Order> findOrders() {
+        return orderRepository.findAll();
+    }
+
+    /** 전체 주문 (fetch join으로 회원·주문 상품·상품까지) */
+    @Transactional(readOnly = true)
+    public List<Order> findOrdersWithItems() {
+        return orderRepository.findAllWithItems();
+    }
+
     /** 주문 취소 — 상태 변경과 재고 복구는 변경 감지로 UPDATE된다 */
     public void cancel(Long orderId) {
         findOrder(orderId).cancel();
