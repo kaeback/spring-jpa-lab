@@ -1,0 +1,25 @@
+spring:
+  application:
+    name: spring-jpa-lab
+  main:
+    web-application-type: none   # 웹 서버 없이 실행하는 콘솔 프로그램
+    banner-mode: off             # 시작 배너를 출력하지 않는다
+
+  # 프로젝트 생성 장에서 만든 PostgreSQL 데이터베이스와 계정
+  # 환경변수 DB_URL / DB_USERNAME / DB_PASSWORD 로 바꿀 수 있다.
+  datasource:
+    url: ${DB_URL:jdbc:postgresql://localhost:5432/springboot}
+    username: ${DB_USERNAME:springboot}
+    password: ${DB_PASSWORD:springboot1234}
+
+  jpa:
+    hibernate:
+      ddl-auto: create     # 시작할 때 엔티티를 보고 테이블을 지우고 새로 만든다 (실습용)
+    show-sql: true         # 실행하는 SQL을 콘솔에 출력한다 (Hibernate: ...)
+
+logging:
+  pattern:
+    console: "%msg%n"      # 로그는 메시지만 출력한다 (시간·스레드 이름 생략)
+  level:
+    root: warn                          # 스프링 시작 로그는 숨긴다
+    org.hibernate.orm.jdbc.bind: trace  # SQL의 ?에 넣은 값을 출력한다
