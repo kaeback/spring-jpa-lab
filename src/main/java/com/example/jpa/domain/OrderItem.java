@@ -23,7 +23,7 @@ public class OrderItem {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @ManyToOne(fetch = FetchType.LAZY)              // 주문 상품 N : 주문 1
+    @ManyToOne(fetch = FetchType.LAZY)              // 주문 상품 N : 주문 1 — 연관관계의 주인
     @JoinColumn(name = "order_id", nullable = false)
     private Order order;
 
@@ -35,13 +35,22 @@ public class OrderItem {
 
     private int quantity;
 
-    /** 주문 상품을 만들면서 상품 재고를 줄인다 */
-    public OrderItem(Order order, Product product, int quantity) {
+    /** 주문 상품을 만들면서 상품 재고를 줄인다. 주문은 Order.addOrderItem()이 연결한다 */
+    public OrderItem(Product product, int quantity) {
         product.removeStock(quantity);
-        this.order = order;
         this.product = product;
         this.orderPrice = product.getPrice();
         this.quantity = quantity;
+    }
+
+    /** Order.addOrderItem()에서만 호출한다 (같은 패키지에서만 보인다) */
+    void setOrder(Order order) {
+        this.order = order;
+    }
+
+    /** 주문 취소 — 재고를 되돌린다 */
+    public void cancel() {
+        product.addStock(quantity);
     }
 
     /** 주문 금액 = 주문 가격 × 수량 */

@@ -52,6 +52,11 @@ public class Product {
         this.stockQuantity -= quantity;
     }
 
+    /** 재고를 늘린다 (주문 취소) */
+    public void addStock(int quantity) {
+        this.stockQuantity += quantity;
+    }
+
     @Override
     public String toString() {
         return "Product{id=" + id + ", name=" + name + ", price=" + price + ", stock=" + stockQuantity + "}";

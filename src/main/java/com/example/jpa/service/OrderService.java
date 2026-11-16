@@ -4,11 +4,12 @@ import com.example.jpa.domain.Member;
 import com.example.jpa.domain.Order;
 import com.example.jpa.domain.OrderItem;
 import com.example.jpa.domain.Product;
-import com.example.jpa.repository.OrderItemRepository;
 import com.example.jpa.repository.OrderRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
 
 /**
  * 주문 서비스
@@ -21,19 +22,47 @@ public class OrderService {
     private final MemberService memberService;
     private final ProductService productService;
     private final OrderRepository orderRepository;
-    private final OrderItemRepository orderItemRepository;
 
-    /** 주문 — 회원이 상품 하나를 quantity개 주문한다. 주문 id를 돌려준다 */
-    public Long order(Long memberId, Long productId, int quantity) {
+    /** 주문 — 회원이 여러 상품을 한 번에 주문한다. 주문 id를 돌려준다 */
+    public Long order(Long memberId, List<OrderLine> lines) {
         Member member = memberService.findMember(memberId);
-        Product product = productService.findProduct(productId);
-
         Order order = new Order(member);
-        orderRepository.save(order);
-
-        OrderItem orderItem = new OrderItem(order, product, quantity);   // 재고가 부족하면 여기서 예외
-        orderItemRepository.save(orderItem);
+        for (OrderLine line : lines) {
+            Product product = productService.findProduct(line.productId());
+            order.addOrderItem(new OrderItem(product, line.quantity()));   // 재고가 부족하면 예외
+        }
+        orderRepository.save(order);   // 주문만 저장해도 cascade로 주문 상품까지 저장된다
         return order.getId();
+    }
+
+    /** 주문 조회 — 없으면 예외 */
+    @Transactional(readOnly = true)
+    public Order findOrder(Long orderId) {
+        Order order = orderRepository.findById(orderId);
+        if (order == null) {
+            throw new IllegalArgumentException("주문이 없습니다. id=" + orderId);
+        }
+        return order;
+    }
+
+    /** 주문 취소 — 상태 변경과 재고 복구는 변경 감지로 UPDATE된다 */
+    public void cancel(Long orderId) {
+        findOrder(orderId).cancel();
+    }
+
+    /** 주문에서 상품 하나를 뺀다 */
+    public void removeOrderItem(Long orderId, Long productId) {
+        Order order = findOrder(orderId);
+        OrderItem target = null;
+        for (OrderItem orderItem : order.getOrderItems()) {
+            if (orderItem.getProduct().getId().equals(productId)) {
+                target = orderItem;
+            }
+        }
+        if (target == null) {
+            throw new IllegalArgumentException("주문에 없는 상품입니다. productId=" + productId);
+        }
+        order.removeOrderItem(target);
     }
 
     /** 주문 수 */
