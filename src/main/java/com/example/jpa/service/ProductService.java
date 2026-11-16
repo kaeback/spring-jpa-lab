@@ -6,6 +6,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
+
 /**
  * 상품 서비스
  */
@@ -31,6 +33,24 @@ public class ProductService {
             throw new IllegalArgumentException("상품이 없습니다. id=" + id);
         }
         return product;
+    }
+
+    /** 상품 수 */
+    @Transactional(readOnly = true)
+    public long countProducts() {
+        return productRepository.count();
+    }
+
+    /** 이름으로 검색 */
+    @Transactional(readOnly = true)
+    public List<Product> searchByName(String keyword) {
+        return productRepository.findByNameContaining(keyword);
+    }
+
+    /** 가격 범위로 검색 */
+    @Transactional(readOnly = true)
+    public List<Product> searchByPrice(int min, int max) {
+        return productRepository.findByPriceBetween(min, max);
     }
 
     /** 가격 변경 (변경 감지) */

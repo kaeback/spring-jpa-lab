@@ -7,6 +7,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
+
 /**
  * 회원 서비스 — 메서드 하나가 트랜잭션 하나다
  */
@@ -32,6 +34,12 @@ public class MemberService {
             throw new IllegalArgumentException("회원이 없습니다. id=" + id);
         }
         return member;
+    }
+
+    /** 전체 회원 */
+    @Transactional(readOnly = true)
+    public List<Member> findMembers() {
+        return memberRepository.findAll();
     }
 
     /** 등급 변경 — 값만 바꾸고 저장 메서드는 호출하지 않는다 (변경 감지) */
